@@ -1,0 +1,13 @@
+Review,True_Label,Predicted_Label,Accuracy
+Good value for the price. Will buy again.,0,1,0
+Good value for the price. Will buy again.,1,1,1
+"Fast shipping and great packaging, very satisfied.",0,1,0
+"Authentic and durable, exceeded my expectations.",0,0,1
+Worst experience ever. Totally fake product.,1,0,0
+Great customer support and fast delivery. Highly recommend.,1,1,1
+"Fake review detected, do not trust this.",1,1,1
+Good value for the price. Will buy again.,0,1,0
+This product is amazing! Highly recommend to everyone.,0,1,0
+Seems like a fabricated review. Be cautious.,0,1,0
+Worst experience ever. Totally fake product.,0,0,1
+Absolutely love this product! Works perfectly as described.,1,0,0
