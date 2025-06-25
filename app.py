@@ -1,7 +1,6 @@
-# app.py
-
 import os
 import pickle
+import requests
 
 import pandas as pd
 from flask import Flask, flash, redirect, render_template, request
@@ -18,8 +17,23 @@ app.config.update(
     SECRET_KEY=os.getenv('FLASK_SECRET_KEY', 'change_me')
 )
 
-# Load trained pipeline at startup
-with open('model_pipeline.pkl', 'rb') as f:
+# URL to your GitHub release asset
+MODEL_URL = (
+    "https://github.com/Russelrip/AuthenReview-Prototype/"
+    "releases/download/v1.0/model_pipeline.pkl"
+)
+MODEL_PATH = "model_pipeline.pkl"
+
+# Download the model if not present locally
+if not os.path.exists(MODEL_PATH):
+    resp = requests.get(MODEL_URL, stream=True)
+    resp.raise_for_status()
+    with open(MODEL_PATH, "wb") as fd:
+        for chunk in resp.iter_content(chunk_size=1 << 20):
+            fd.write(chunk)
+
+# Load trained pipeline
+with open(MODEL_PATH, 'rb') as f:
     model = pickle.load(f)
 
 
@@ -32,8 +46,7 @@ def index():
             return redirect(request.url)
 
         os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-        path = os.path.join(app.config['UPLOAD_FOLDER'],
-                            uploaded.filename)
+        path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded.filename)
         uploaded.save(path)
 
         df = pd.read_csv(path)
