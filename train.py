@@ -47,7 +47,7 @@ grid.fit(X, y)
 # 4. Cross‑validate
 scores = cross_validate(
     grid.best_estimator_, X, y,
-    scoring=['accuracy','precision','recall','f1'],
+    scoring=['accuracy', 'precision', 'recall', 'f1'],
     cv=5
 )
 print({
