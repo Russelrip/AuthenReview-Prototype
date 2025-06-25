@@ -17,7 +17,7 @@ template_pipe = Pipeline([
     ('clean', TextCleaner()),
     ('tfidf', TfidfVectorizer(
         max_features=5000,
-        ngram_range=(1,2),
+        ngram_range=(1, 2),
         max_df=0.85,
         min_df=5
     )),
@@ -31,7 +31,7 @@ template_pipe = Pipeline([
 
 # 3. Hyperparameter tuning
 param_grid = {
-    'clf__n_estimators': [100,200],
+    'clf__n_estimators': [100, 200],
     'clf__max_depth': [None, 20]
 }
 grid = GridSearchCV(
