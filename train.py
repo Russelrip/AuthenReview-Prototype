@@ -57,7 +57,10 @@ scores = cross_validate(
     scoring=['accuracy', 'precision', 'recall', 'f1'],
     cv=5
 )
-print({m: scores[f'test_{m}'].mean() for m in ['accuracy', 'precision', 'recall', 'f1']})
+print({
+    m: scores[f'test_{m}'].mean()
+    for m in ['accuracy', 'precision', 'recall', 'f1']
+})
 
 # 7. Serialize pipeline
 with open('model_pipeline.pkl', 'wb') as f:
