@@ -17,6 +17,6 @@ class TextCleaner(BaseEstimator, TransformerMixin):
             text = re.sub(r"\W", ' ', str(doc))
             text = re.sub(r"\s+", ' ', text).lower()
             tokens = [w for w in text.split() if w not in self.stop_words]
-            cleaned.append(' '.join(tokens))      
+            cleaned.append(' '.join(tokens))
         return cleaned
     
