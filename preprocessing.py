@@ -24,4 +24,3 @@ class TextCleaner(BaseEstimator, TransformerMixin):
             ]
             cleaned.append(' '.join(tokens))
         return cleaned
-
