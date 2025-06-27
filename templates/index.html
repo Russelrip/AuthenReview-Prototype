@@ -10,12 +10,17 @@
     <div class="container mt-5">
       <h1 class="mb-4">AuthenReview</h1>
 
-      <!-- Upload Form -->
+      <!-- Input Form: CSV upload or textarea -->
       <form method="post" enctype="multipart/form-data">
         <div class="mb-3">
-          <input class="form-control" type="file" name="file" accept=".csv">
+          <label for="fileInput" class="form-label">Upload CSV (must have <code>review_text</code>[, <code>label</code>]):</label>
+          <input class="form-control" type="file" id="fileInput" name="file" accept=".csv">
         </div>
-        <button type="submit" class="btn btn-primary">Upload & Predict</button>
+        <div class="mb-3">
+          <label for="reviewsInput" class="form-label">Or paste one review per line:</label>
+          <textarea class="form-control" id="reviewsInput" name="reviews" rows="5" placeholder="Great product!..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
       </form>
 
       <!-- Metrics -->
@@ -31,18 +36,41 @@
       </div>
       {% endif %}
 
+      <!-- Prediction Breakdown -->
+      {% if distribution %}
+      <div class="mt-4">
+        <h4>Prediction Breakdown</h4>
+        <ul>
+          <li>Real reviews: {{ distribution.real_count }} ({{ (distribution.real_pct * 100)|round(1) }}%)</li>
+          <li>Fake reviews: {{ distribution.fake_count }} ({{ (distribution.fake_pct * 100)|round(1) }}%)</li>
+        </ul>
+      </div>
+      {% endif %}
+
       <!-- Results Table -->
       {% if results %}
       <div class="mt-4">
         <h4>Sample Predictions</h4>
         <table class="table table-striped">
-          <thead><tr><th>Review</th><th>True</th><th>Predicted</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Review</th>
+              {% if metrics %}<th>True</th>{% endif %}
+              <th>Predicted</th>
+            </tr>
+          </thead>
           <tbody>
             {% for row in results %}
             <tr>
               <td>{{ row.review_text }}</td>
-              <td>{{ row.label }}</td>
-              <td>{{ row.predicted }}</td>
+              {% if metrics %}<td>{{ row.label }}</td>{% endif %}
+              <td>
+                {% if row.predicted == 0 %}
+                  Real
+                {% else %}
+                  Fake
+                {% endif %}
+              </td>
             </tr>
             {% endfor %}
           </tbody>
