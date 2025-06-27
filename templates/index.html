@@ -5,80 +5,106 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>AuthenReview Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+      body { background-color: #f8f9fa; }
+      .badge-custom { font-size: 0.9rem; padding: 0.4em 0.75em; }
+    </style>
   </head>
-  <body class="bg-light">
-    <div class="container mt-5">
-      <h1 class="mb-4">AuthenReview</h1>
-
-      <!-- Input Form: CSV upload or textarea -->
-      <form method="post" enctype="multipart/form-data">
-        <div class="mb-3">
-          <label for="fileInput" class="form-label">Upload CSV (must have <code>review_text</code>[, <code>label</code>]):</label>
-          <input class="form-control" type="file" id="fileInput" name="file" accept=".csv">
-        </div>
-        <div class="mb-3">
-          <label for="reviewsInput" class="form-label">Or paste one review per line:</label>
-          <textarea class="form-control" id="reviewsInput" name="reviews" rows="5" placeholder="Great product!..."></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
-      </form>
-
-      <!-- Metrics -->
-      {% if metrics %}
-      <div class="mt-4">
-        <h4>Evaluation Metrics</h4>
-        <ul>
-          <li>Accuracy: {{ metrics.accuracy | round(3) }}</li>
-          <li>Precision: {{ metrics.precision | round(3) }}</li>
-          <li>Recall: {{ metrics.recall | round(3) }}</li>
-          <li>F1 Score: {{ metrics.f1_score | round(3) }}</li>
-        </ul>
+  <body>
+    <div class="container py-5">
+      <div class="text-center mb-5">
+        <h1 class="display-4">AuthenReview</h1>
+        <p class="lead text-muted">Detect fake vs. real product reviews instantly</p>
       </div>
-      {% endif %}
 
-      <!-- Prediction Breakdown -->
-      {% if distribution %}
-      <div class="mt-4">
-        <h4>Prediction Breakdown</h4>
-        <ul>
-          <li>Real reviews: {{ distribution.real_count }} ({{ (distribution.real_pct * 100)|round(1) }}%)</li>
-          <li>Fake reviews: {{ distribution.fake_count }} ({{ (distribution.fake_pct * 100)|round(1) }}%)</li>
-        </ul>
+      <!-- Input Card -->
+      <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Upload Reviews</h5>
+          <form method="post" enctype="multipart/form-data" class="row g-3">
+            <div class="col-md-6">
+              <label for="fileInput" class="form-label">CSV File</label>
+              <input class="form-control" type="file" id="fileInput" name="file" accept=".csv">
+            </div>
+            <div class="col-md-6">
+              <label for="reviewsInput" class="form-label">Or Paste Reviews</label>
+              <textarea class="form-control" id="reviewsInput" name="reviews" rows="4" placeholder="One review per line..."></textarea>
+            </div>
+            <div class="col-12 text-end">
+              <button type="submit" class="btn btn-primary">Analyze</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Metrics & Breakdown -->
+      {% if metrics or distribution %}
+      <div class="row g-4 mb-4">
+        {% if metrics %}
+        <div class="col-md-6">
+          <div class="card text-white bg-info h-100 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">Model Performance</h5>
+              <ul class="list-unstyled mb-0">
+                <li>Accuracy: <strong>{{ metrics.accuracy | round(3) }}</strong></li>
+                <li>Precision: <strong>{{ metrics.precision | round(3) }}</strong></li>
+                <li>Recall: <strong>{{ metrics.recall | round(3) }}</strong></li>
+                <li>F1 Score: <strong>{{ metrics.f1_score | round(3) }}</strong></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        {% if distribution %}
+        <div class="col-md-6">
+          <div class="card text-white bg-secondary h-100 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">Prediction Breakdown</h5>
+              <p class="mb-2">Real: <span class="badge bg-success badge-custom">{{ distribution.real_count }} ({{ (distribution.real_pct * 100)|round(1) }}%)</span></p>
+              <p class="mb-0">Fake: <span class="badge bg-danger badge-custom">{{ distribution.fake_count }} ({{ (distribution.fake_pct * 100)|round(1) }}%)</span></p>
+            </div>
+          </div>
+        </div>
+        {% endif %}
       </div>
       {% endif %}
 
       <!-- Results Table -->
       {% if results %}
-      <div class="mt-4">
-        <h4>Sample Predictions</h4>
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th>Review</th>
-              {% if metrics %}<th>True</th>{% endif %}
-              <th>Predicted</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for row in results %}
-            <tr>
-              <td>{{ row.review_text }}</td>
-              {% if metrics %}<td>{{ row.label }}</td>{% endif %}
-              <td>
-                {% if row.predicted == 0 %}
-                  Real
-                {% else %}
-                  Fake
-                {% endif %}
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+      <div class="card shadow-sm">
+        <div class="card-header bg-white">
+          <h5 class="mb-0">Sample Predictions</h5>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th scope="col">Review</th>
+                {% if metrics %}<th scope="col">True Label</th>{% endif %}
+                <th scope="col">Predicted</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in results %}
+              <tr>
+                <td>{{ row.review_text }}</td>
+                {% if metrics %}<td>{{ row.label }}</td>{% endif %}
+                <td>
+                  {% if row.predicted == 0 %}
+                    <span class="badge bg-success badge-custom">Real</span>
+                  {% else %}
+                    <span class="badge bg-danger badge-custom">Fake</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
       </div>
       {% endif %}
-
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>
