@@ -15,7 +15,7 @@ app = Flask(__name__)
 app.config.update(
     UPLOAD_FOLDER='uploads',
     MAX_CONTENT_LENGTH=500 * 1024 * 1024,  # 500 MB
-    SECRET_KEY=os.getenv('FLASK_SECRET_KEY', 'change_me')
+    SECRET_KEY=os.getenv('FLASK_SECRET_KEY', '1155415845184815485')
 )
 
 # URL to your GitHub release asset
